@@ -26,6 +26,9 @@ model Cliente {
   nome         String
   email        String   @unique
   telefone     String?
+  cpf          String?
+  idade        Int?
+  endereco     String?
   empresa      String?
   valor        Float    @default(0)
   status       String   @default("Ativo") // Ativo, Inativo, Em Negociação
