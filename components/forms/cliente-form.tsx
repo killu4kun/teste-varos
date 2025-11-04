@@ -15,6 +15,9 @@ interface ClienteFormProps {
     nome: string
     email: string
     telefone: string | null
+    cpf: string | null
+    idade: number | null
+    endereco: string | null
     empresa: string | null
     valor: number
     status: string
@@ -30,6 +33,9 @@ export function ClienteForm({ cliente, consultores, mode }: ClienteFormProps) {
     nome: cliente?.nome || '',
     email: cliente?.email || '',
     telefone: cliente?.telefone || '',
+    cpf: cliente?.cpf || '',
+    idade: cliente?.idade?.toString() || '',
+    endereco: cliente?.endereco || '',
     empresa: cliente?.empresa || '',
     valor: cliente?.valor?.toString() || '0',
     status: cliente?.status || 'Ativo',
@@ -45,11 +51,16 @@ export function ClienteForm({ cliente, consultores, mode }: ClienteFormProps) {
 
     try {
       const clienteData: ClienteInput = {
-        ...formData,
+        nome: formData.nome,
+        email: formData.email,
         telefone: formData.telefone || undefined,
+        cpf: formData.cpf || undefined,
+        idade: formData.idade ? parseInt(formData.idade) : undefined,
+        endereco: formData.endereco || undefined,
         empresa: formData.empresa || undefined,
         valor: parseFloat(formData.valor),
         status: formData.status as 'Ativo' | 'Inativo' | 'Em Negociação',
+        consultorId: formData.consultorId,
       }
 
       const result =
@@ -112,6 +123,28 @@ export function ClienteForm({ cliente, consultores, mode }: ClienteFormProps) {
             value={formData.telefone}
             onChange={(e) => setFormData({ ...formData, telefone: e.target.value })}
             placeholder="(00) 00000-0000"
+          />
+
+          <Input
+            label="CPF"
+            value={formData.cpf}
+            onChange={(e) => setFormData({ ...formData, cpf: e.target.value })}
+            placeholder="000.000.000-00"
+          />
+
+          <Input
+            label="Idade"
+            type="number"
+            value={formData.idade}
+            onChange={(e) => setFormData({ ...formData, idade: e.target.value })}
+            placeholder="28"
+          />
+
+          <Input
+            label="Endereço"
+            value={formData.endereco}
+            onChange={(e) => setFormData({ ...formData, endereco: e.target.value })}
+            placeholder="Rua, número - Cidade"
           />
 
           <Input

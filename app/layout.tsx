@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { Navbar } from "@/components/layout/navbar";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -14,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Varos - Dashboard de Consultoria",
+  title: "Varos - Dashboard",
   description: "Sistema de gestão de consultores e clientes",
 };
 
@@ -26,12 +25,10 @@ export default function RootLayout({
   return (
     <html lang="pt-BR">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gray-50`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        style={{ background: '#131313', color: '#ffffff' }}
       >
-        <Navbar />
-        <main className="min-h-screen">
-          {children}
-        </main>
+        {children}
       </body>
     </html>
   );
