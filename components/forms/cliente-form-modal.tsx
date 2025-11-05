@@ -314,7 +314,7 @@ export function ClienteFormModal({ consultores, onClose, onSuccess, mode = 'crea
                       disabled={isReadOnly}
                     >
                       <option value="">Selecione um consultor</option>
-                      {consultores.map((c) => (
+                      {consultores.map((c: any) => (
                         <option key={c.id} value={c.id}>
                           {c.nome}
                         </option>
@@ -418,7 +418,7 @@ export function ClienteFormModal({ consultores, onClose, onSuccess, mode = 'crea
                     {clientesDisponiveis.length === 0 ? (
                       <p className="text-gray-500 text-sm text-center py-4">Nenhum cliente disponível</p>
                     ) : (
-                      clientesDisponiveis.map((c) => (
+                      clientesDisponiveis.map((c: any) => (
                         <label
                           key={c.id}
                           className="flex items-center gap-3 p-3 bg-[#1e1e1e] rounded-lg hover:bg-[#252525] cursor-pointer transition-colors"

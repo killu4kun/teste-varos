@@ -84,7 +84,7 @@ export function TabelaClientes({ clientes, consultores }: TabelaClientesProps) {
                 </td>
               </tr>
             ) : (
-              clientesPaginados.map((cliente) => (
+              clientesPaginados.map((cliente: any) => (
               <tr key={cliente.id}>
                 <td className="w-[12%] h-[97px] px-4 py-2 text-sm text-white bg-[#131516] border-b border-[#222729] opacity-100">{cliente.nome}</td>
                 <td className="w-[15%] h-[97px] px-4 py-2 text-sm text-white bg-[#131516] border-b border-[#222729] opacity-100">{cliente.email}</td>

@@ -81,7 +81,7 @@ export function ClientesTable({ clientes }: ClientesTableProps) {
         </TableRow>
       </TableHeader>
       <TableBody>
-        {clientes.map((cliente) => (
+        {clientes.map((cliente: any) => (
           <TableRow key={cliente.id}>
             <TableCell>
               <div>

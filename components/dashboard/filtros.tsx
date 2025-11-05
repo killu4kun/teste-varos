@@ -38,7 +38,7 @@ export function Filtros({ consultores }: FiltrosProps) {
 
   const consultorOptions = [
     { value: 'todos', label: 'Todos os Consultores' },
-    ...consultores.map((c) => ({ value: c.id, label: c.nome })),
+    ...consultores.map((c: any) => ({ value: c.id, label: c.nome })),
   ]
 
   const statusOptions = [

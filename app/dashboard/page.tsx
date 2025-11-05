@@ -28,7 +28,7 @@ async function DashboardContent({ searchParams }: PageProps) {
   
   // Filtrar por email se fornecido (já vem filtrado do servidor por consultor)
   if (params.email) {
-    clientesFiltrados = clientesFiltrados.filter(c => c.consultor.email === params.email)
+    clientesFiltrados = clientesFiltrados.filter((c: any) => c.consultor.email === params.email)
   }
 
   return (

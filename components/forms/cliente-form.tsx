@@ -333,7 +333,7 @@ export function ClienteForm({ cliente, consultores, mode }: ClienteFormProps) {
                   required
                 >
                   <option value="">Selecione um consultor</option>
-                  {consultores.map((c) => (
+                  {consultores.map((c: any) => (
                     <option key={c.id} value={c.id}>
                       {c.nome}
                     </option>

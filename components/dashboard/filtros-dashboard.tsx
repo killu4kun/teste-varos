@@ -40,7 +40,7 @@ export function FiltrosDashboard({ consultores }: FiltrosDashboardProps) {
           onChange={(e) => handleConsultorChange(e.target.value)}
         >
           <option value="">Todos os consultores</option>
-          {consultores.map(c => (
+          {consultores.map((c: any) => (
             <option key={c.id} value={c.id}>{c.nome}</option>
           ))}
         </select>
@@ -54,7 +54,7 @@ export function FiltrosDashboard({ consultores }: FiltrosDashboardProps) {
           onChange={(e) => handleEmailChange(e.target.value)}
         >
           <option value="">Todos os emails</option>
-          {consultores.map(c => (
+          {consultores.map((c: any) => (
             <option key={c.id} value={c.email}>{c.email}</option>
           ))}
         </select>
