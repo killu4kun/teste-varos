@@ -36,7 +36,7 @@ async function ConsultoresContent() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {(consultores ?? []).map((consultor) => (
+              {(consultores ?? []).map((consultor: any) => (
                 <TableRow key={consultor.id}>
                   <TableCell className="font-medium">{consultor.nome}</TableCell>
                   <TableCell>{consultor.email}</TableCell>
