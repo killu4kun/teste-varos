@@ -133,3 +133,40 @@ export async function getMetricas() {
   }
 }
 
+export async function getClientesSemConsultor() {
+  try {
+    // Como não temos clientes sem consultor (consultorId é obrigatório),
+    // vamos retornar uma lista vazia ou você pode ajustar a lógica conforme necessário
+    const clientes = await prisma.cliente.findMany({
+      orderBy: {
+        nome: 'asc',
+      },
+    })
+    return { success: true, data: clientes }
+  } catch (error) {
+    console.error('Erro ao buscar clientes:', error)
+    return { success: false, error: 'Erro ao buscar clientes' }
+  }
+}
+
+export async function adicionarClientesAoConsultor(consultorId: string, clienteIds: string[]) {
+  try {
+    await prisma.cliente.updateMany({
+      where: {
+        id: { in: clienteIds },
+      },
+      data: {
+        consultorId,
+      },
+    })
+    
+    revalidatePath('/consultores')
+    revalidatePath('/dashboard')
+    
+    return { success: true }
+  } catch (error) {
+    console.error('Erro ao adicionar clientes:', error)
+    return { success: false, error: 'Erro ao adicionar clientes ao consultor' }
+  }
+}
+

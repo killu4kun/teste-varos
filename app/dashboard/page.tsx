@@ -4,6 +4,7 @@ import { getClientes, getMetricas } from '@/actions/cliente-actions'
 import { getConsultores } from '@/actions/consultor-actions'
 import { TabelaClientes } from '@/components/dashboard/tabela-clientes'
 import { CriarUsuarioButton } from '@/components/dashboard/criar-usuario-button'
+import { FiltrosDashboard } from '@/components/dashboard/filtros-dashboard'
 
 interface PageProps {
   searchParams: Promise<{ consultor?: string; email?: string; dataInicio?: string; dataFim?: string }>
@@ -21,10 +22,13 @@ async function DashboardContent({ searchParams }: PageProps) {
   const metricas = metricasResult.success ? metricasResult.data : null
   const consultores = consultoresResult.success && consultoresResult.data ? consultoresResult.data : []
 
-  // Filtrar por email se fornecido
-  const clientesFiltrados = params.email
-    ? clientes.filter(c => c.consultor.email.includes(params.email!))
-    : clientes
+  // Aplicar filtros adicionais do lado do cliente
+  let clientesFiltrados = clientes
+  
+  // Filtrar por email se fornecido (já vem filtrado do servidor por consultor)
+  if (params.email) {
+    clientesFiltrados = clientesFiltrados.filter(c => c.consultor.email === params.email)
+  }
 
   return (
     <div className="min-h-screen bg-[var(--background)]">
@@ -77,36 +81,7 @@ async function DashboardContent({ searchParams }: PageProps) {
             </div>
 
             {/* Filtros */}
-            <div className="w-full lg:w-auto px-4 md:px-6 py-4 flex flex-col md:flex-row items-stretch md:items-center gap-4 md:gap-6 border border-[#222729] rounded-lg bg-[var(--background)] shadow-[0px_1px_4px_0px_#00000029]">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 min-w-0">
-                <label className="text-[var(--text-secondary)] text-sm whitespace-nowrap">Nome do consultor</label>
-                <select className="w-full sm:min-w-[120px] px-4 py-2.5 bg-[var(--input-bg)] rounded-lg text-white border-none outline-none">
-                  <option>John Doe</option>
-                  {consultores.map(c => (
-                    <option key={c.id} value={c.id}>{c.nome}</option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 min-w-0">
-                <label className="text-[var(--text-secondary)] text-sm whitespace-nowrap">Email do consultor</label>
-                <select className="w-full sm:min-w-[120px] px-4 py-2.5 bg-[var(--input-bg)] rounded-lg text-white border-none outline-none">
-                  <option>johndoe@gm...</option>
-                  {consultores.map(c => (
-                    <option key={c.id} value={c.email}>{c.email}</option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 min-w-0">
-                <label className="text-[var(--text-secondary)] text-sm whitespace-nowrap">Período</label>
-                <input 
-                  type="text"
-                  placeholder="21/10/2025 até 21/12/2025"
-                  className="w-full sm:min-w-[140px] px-4 py-2.5 bg-[var(--input-bg)] rounded-lg text-white border-none outline-none placeholder:text-gray-500"
-                />
-              </div>
-            </div>
+            <FiltrosDashboard consultores={consultores} />
           </div>
         </div>
 

@@ -1,8 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Image from 'next/image'
-import { createCliente, updateCliente, deleteCliente } from '@/actions/cliente-actions'
+import { createCliente, updateCliente, deleteCliente, getClientesSemConsultor, adicionarClientesAoConsultor } from '@/actions/cliente-actions'
 import type { ClienteInput } from '@/lib/validations'
 
 interface ClienteFormModalProps {
@@ -15,6 +15,8 @@ interface ClienteFormModalProps {
 
 export function ClienteFormModal({ consultores, onClose, onSuccess, mode = 'create', cliente }: ClienteFormModalProps) {
   const [abaAtiva, setAbaAtiva] = useState<'basica' | 'clientes'>('basica')
+  const [clientesDisponiveis, setClientesDisponiveis] = useState<any[]>([])
+  const [clientesSelecionados, setClientesSelecionados] = useState<string[]>([])
   const [formData, setFormData] = useState({
     tipo: cliente ? 'cliente' : '',
     nome: cliente?.nome || '',
@@ -35,37 +37,80 @@ export function ClienteFormModal({ consultores, onClose, onSuccess, mode = 'crea
   
   const isReadOnly = mode === 'delete'
 
+  useEffect(() => {
+    if (formData.tipo === 'consultor') {
+      // Carregar clientes disponíveis
+      getClientesSemConsultor().then(result => {
+        if (result.success && result.data) {
+          setClientesDisponiveis(result.data)
+        }
+      })
+    }
+  }, [formData.tipo])
+
   const handleSubmit = async (e?: React.FormEvent) => {
     if (e) e.preventDefault()
     setIsSubmitting(true)
     setErrors({})
 
     try {
-      const clienteData: ClienteInput = {
-        nome: formData.nome,
-        email: formData.email,
-        telefone: formData.telefone || undefined,
-        cpf: formData.cpf || undefined,
-        idade: formData.idade ? parseInt(formData.idade) : undefined,
-        endereco: formData.endereco || undefined,
-        empresa: undefined,
-        valor: parseFloat(formData.valor),
-        status: formData.status as 'Ativo' | 'Inativo' | 'Em Negociação',
-        consultorId: formData.consultorId,
-      }
+      if (formData.tipo === 'consultor') {
+        // Criar consultor
+        const { createConsultor } = await import('@/actions/consultor-actions')
+        const result = await createConsultor({
+          nome: formData.nome,
+          email: formData.email,
+          telefone: formData.telefone || undefined,
+        })
 
-      const result = mode === 'create' 
-        ? await createCliente(clienteData)
-        : await updateCliente(cliente!.id, clienteData)
+        if (result.success) {
+          // Se tiver clientes selecionados, associá-los ao consultor
+          if (clientesSelecionados.length > 0 && result.data) {
+            await adicionarClientesAoConsultor(result.data.id, clientesSelecionados)
+          }
+          onSuccess()
+          onClose()
+        } else {
+          setErrors({ general: result.error || 'Erro ao salvar consultor' })
+        }
+      } else if (formData.tipo === 'cliente') {
+        // Criar ou atualizar cliente
+        if (!formData.consultorId) {
+          setErrors({ general: 'Selecione um consultor para o cliente' })
+          setIsSubmitting(false)
+          return
+        }
 
-      if (result.success) {
-        onSuccess()
-        onClose()
+        const clienteData: ClienteInput = {
+          nome: formData.nome,
+          email: formData.email,
+          telefone: formData.telefone || undefined,
+          cpf: formData.cpf || undefined,
+          idade: formData.idade ? parseInt(formData.idade) : undefined,
+          endereco: formData.endereco || undefined,
+          empresa: undefined,
+          valor: parseFloat(formData.valor),
+          status: formData.status as 'Ativo' | 'Inativo' | 'Em Negociação',
+          consultorId: formData.consultorId,
+        }
+
+        const result = mode === 'create' 
+          ? await createCliente(clienteData)
+          : await updateCliente(cliente!.id, clienteData)
+
+        if (result.success) {
+          onSuccess()
+          onClose()
+        } else {
+          setErrors({ general: result.error || 'Erro ao salvar cliente' })
+        }
       } else {
-        setErrors({ general: result.error || 'Erro ao salvar cliente' })
+        setErrors({ general: 'Selecione o tipo de usuário' })
+        setIsSubmitting(false)
+        return
       }
     } catch (error) {
-      setErrors({ general: 'Erro ao salvar cliente' })
+      setErrors({ general: 'Erro ao salvar usuário' })
     } finally {
       setIsSubmitting(false)
     }
@@ -222,23 +267,46 @@ export function ClienteFormModal({ consultores, onClose, onSuccess, mode = 'crea
                 >
                   Informações básica
                 </button>
-                <button
-                  type="button"
-                  onClick={() => setAbaAtiva('clientes')}
-                  className={`pb-4 text-sm font-medium transition-colors ${
-                    abaAtiva === 'clientes'
-                      ? 'text-white border-b-2 border-white'
-                      : 'text-gray-500 hover:text-gray-300'
-                  }`}
-                >
-                  Adicionar clientes
-                </button>
+                {formData.tipo === 'consultor' && (
+                  <button
+                    type="button"
+                    onClick={() => setAbaAtiva('clientes')}
+                    className={`pb-4 text-sm font-medium transition-colors ${
+                      abaAtiva === 'clientes'
+                        ? 'text-white border-b-2 border-white'
+                        : 'text-gray-500 hover:text-gray-300'
+                    }`}
+                  >
+                    Adicionar clientes
+                  </button>
+                )}
               </div>
             </div>
 
             {/* Conteúdo da Aba - Informações Básicas */}
             {abaAtiva === 'basica' && (
               <div className="space-y-6 pt-4">
+                {/* Se for cliente, mostrar seleção de consultor */}
+                {formData.tipo === 'cliente' && (
+                  <div>
+                    <label className="block text-white text-sm mb-2">Consultor</label>
+                    <select
+                      value={formData.consultorId}
+                      onChange={(e) => setFormData({ ...formData, consultorId: e.target.value })}
+                      className="w-full px-4 py-3 bg-[#2a2a2a] rounded-lg text-white border-none outline-none"
+                      required
+                      disabled={isReadOnly}
+                    >
+                      <option value="">Selecione um consultor</option>
+                      {consultores.map((c) => (
+                        <option key={c.id} value={c.id}>
+                          {c.nome}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+
                 {/* Idade e CPF */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
@@ -326,50 +394,45 @@ export function ClienteFormModal({ consultores, onClose, onSuccess, mode = 'crea
             )}
 
             {/* Conteúdo da Aba - Adicionar Clientes */}
-            {abaAtiva === 'clientes' && (
+            {abaAtiva === 'clientes' && formData.tipo === 'consultor' && (
               <div className="space-y-6 pt-4">
                 <div>
-                  <label className="block text-white text-sm mb-2">Consultor</label>
-                  <select
-                    value={formData.consultorId}
-                    onChange={(e) => setFormData({ ...formData, consultorId: e.target.value })}
-                    className="w-full px-4 py-3 bg-[#2a2a2a] rounded-lg text-white border-none outline-none"
-                    required
-                    disabled={isReadOnly}
-                  >
-                    <option value="">Selecione um consultor</option>
-                    {consultores.map((c) => (
-                      <option key={c.id} value={c.id}>
-                        {c.nome}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-white text-sm mb-2">Valor (R$)</label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    value={formData.valor}
-                    onChange={(e) => setFormData({ ...formData, valor: e.target.value })}
-                    className="w-full px-4 py-3 bg-[#2a2a2a] rounded-lg text-white border-none outline-none"
-                    readOnly={isReadOnly}
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-white text-sm mb-2">Status</label>
-                  <select
-                    value={formData.status}
-                    onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                    className="w-full px-4 py-3 bg-[#2a2a2a] rounded-lg text-white border-none outline-none"
-                    disabled={isReadOnly}
-                  >
-                    <option value="Ativo">Ativo</option>
-                    <option value="Inativo">Inativo</option>
-                    <option value="Em Negociação">Em Negociação</option>
-                  </select>
+                  <label className="block text-white text-sm mb-4">Selecione os clientes para associar</label>
+                  <div className="max-h-[400px] overflow-y-auto space-y-2 p-4 bg-[#2a2a2a] rounded-lg">
+                    {clientesDisponiveis.length === 0 ? (
+                      <p className="text-gray-500 text-sm text-center py-4">Nenhum cliente disponível</p>
+                    ) : (
+                      clientesDisponiveis.map((c) => (
+                        <label
+                          key={c.id}
+                          className="flex items-center gap-3 p-3 bg-[#1e1e1e] rounded-lg hover:bg-[#252525] cursor-pointer transition-colors"
+                        >
+                          <input
+                            type="checkbox"
+                            checked={clientesSelecionados.includes(c.id)}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                setClientesSelecionados([...clientesSelecionados, c.id])
+                              } else {
+                                setClientesSelecionados(clientesSelecionados.filter(id => id !== c.id))
+                              }
+                            }}
+                            className="w-4 h-4 accent-green-500"
+                            disabled={isReadOnly}
+                          />
+                          <div className="flex-1">
+                            <div className="text-white text-sm font-medium">{c.nome}</div>
+                            <div className="text-gray-400 text-xs">{c.email}</div>
+                          </div>
+                        </label>
+                      ))
+                    )}
+                  </div>
+                  {clientesSelecionados.length > 0 && (
+                    <p className="text-sm text-gray-400 mt-2">
+                      {clientesSelecionados.length} cliente(s) selecionado(s)
+                    </p>
+                  )}
                 </div>
               </div>
             )}
