@@ -1,12 +1,14 @@
 'use client'
 
 import { useState } from 'react'
+import { AcoesCliente } from './acoes-cliente'
 
 interface TabelaClientesProps {
-  clientes: any[] // Usando any temporariamente para compatibilidade com os dados do Prisma
+  clientes: any[]
+  consultores: any[]
 }
 
-export function TabelaClientes({ clientes }: TabelaClientesProps) {
+export function TabelaClientes({ clientes, consultores }: TabelaClientesProps) {
   const [paginaAtual, setPaginaAtual] = useState(1)
   const itensPorPagina = 5
 
@@ -34,49 +36,54 @@ export function TabelaClientes({ clientes }: TabelaClientesProps) {
     setPaginaAtual(prev => Math.min(prev + 1, totalPaginas))
   }
 
-  if (clientes.length === 0) {
-    return (
-      <div className="text-center py-12 text-gray-400">
-        <p className="text-lg">Nenhum cliente encontrado</p>
-      </div>
-    )
-  }
 
   return (
     <div className="flex flex-col h-full">
       <div className="flex-1 overflow-x-auto overflow-y-auto">
-        <table className="w-full min-w-[1200px]">
+        <table className="w-full">
           <thead className="sticky top-0">
             <tr className="bg-[var(--background)]">
-              <th className="min-w-[189px] h-[97px] px-4 py-2 text-left text-sm font-semibold text-white border-b border-[#222729] opacity-100">Nome</th>
-              <th className="min-w-[189px] h-[97px] px-4 py-2 text-left text-sm font-semibold text-white border-b border-[#222729] opacity-100">Email</th>
-              <th className="min-w-[150px] h-[97px] px-4 py-2 text-left text-sm font-semibold text-white border-b border-[#222729] opacity-100">Telefone</th>
-              <th className="min-w-[150px] h-[97px] px-4 py-2 text-left text-sm font-semibold text-white border-b border-[#222729] opacity-100">CPF</th>
-              <th className="min-w-[100px] h-[97px] px-4 py-2 text-left text-sm font-semibold text-white border-b border-[#222729] opacity-100">Idade</th>
-              <th className="min-w-[200px] h-[97px] px-4 py-2 text-left text-sm font-semibold text-white border-b border-[#222729] opacity-100">Endereço</th>
-              <th className="min-w-[180px] h-[97px] px-4 py-2 text-left text-sm font-semibold text-white border-b border-[#222729] opacity-100">Criado em</th>
-              <th className="min-w-[180px] h-[97px] px-4 py-2 text-left text-sm font-semibold text-white border-b border-[#222729] opacity-100">Atualizado em</th>
+              <th className="w-[12%] h-[97px] px-4 py-2 text-left text-sm font-semibold text-white border-b border-[#222729] opacity-100">Nome</th>
+              <th className="w-[15%] h-[97px] px-4 py-2 text-left text-sm font-semibold text-white border-b border-[#222729] opacity-100">Email</th>
+              <th className="w-[10%] h-[97px] px-4 py-2 text-left text-sm font-semibold text-white border-b border-[#222729] opacity-100">Telefone</th>
+              <th className="w-[10%] h-[97px] px-4 py-2 text-left text-sm font-semibold text-white border-b border-[#222729] opacity-100">CPF</th>
+              <th className="w-[8%] h-[97px] px-4 py-2 text-left text-sm font-semibold text-white border-b border-[#222729] opacity-100">Idade</th>
+              <th className="w-[15%] h-[97px] px-4 py-2 text-left text-sm font-semibold text-white border-b border-[#222729] opacity-100">Endereço</th>
+              <th className="w-[12%] h-[97px] px-4 py-2 text-left text-sm font-semibold text-white border-b border-[#222729] opacity-100">Criado em</th>
+              <th className="w-[12%] h-[97px] px-4 py-2 text-left text-sm font-semibold text-white border-b border-[#222729] opacity-100">Atualizado em</th>
+              <th className="w-[130px] h-[97px] px-4 py-2 text-left text-sm font-semibold text-white border-b border-[#222729] opacity-100">Ações</th>
             </tr>
           </thead>
           <tbody>
-            {clientesPaginados.map((cliente) => (
+            {clientes.length === 0 ? (
+              <tr>
+                <td colSpan={9} className="px-6 py-12 text-center text-gray-400">
+                  <p className="text-lg">Nenhum cliente encontrado</p>
+                </td>
+              </tr>
+            ) : (
+              clientesPaginados.map((cliente) => (
               <tr key={cliente.id}>
-                <td className="min-w-[189px] h-[97px] px-4 py-2 text-sm text-white bg-[#131516] border-b border-[#222729] opacity-100">{cliente.nome}</td>
-                <td className="min-w-[189px] h-[97px] px-4 py-2 text-sm text-white bg-[#131516] border-b border-[#222729] opacity-100">{cliente.email}</td>
-                <td className="min-w-[150px] h-[97px] px-4 py-2 text-sm text-white bg-[#131516] border-b border-[#222729] opacity-100">{cliente.telefone || '-'}</td>
-                <td className="min-w-[150px] h-[97px] px-4 py-2 text-sm text-white bg-[#131516] border-b border-[#222729] opacity-100">{cliente.cpf || '-'}</td>
-                <td className="min-w-[100px] h-[97px] px-4 py-2 text-sm text-white bg-[#131516] border-b border-[#222729] opacity-100">{cliente.idade ? `${cliente.idade} anos` : '-'}</td>
-                <td className="min-w-[200px] h-[97px] px-4 py-2 text-sm text-white bg-[#131516] border-b border-[#222729] opacity-100">
+                <td className="w-[12%] h-[97px] px-4 py-2 text-sm text-white bg-[#131516] border-b border-[#222729] opacity-100">{cliente.nome}</td>
+                <td className="w-[15%] h-[97px] px-4 py-2 text-sm text-white bg-[#131516] border-b border-[#222729] opacity-100">{cliente.email}</td>
+                <td className="w-[10%] h-[97px] px-4 py-2 text-sm text-white bg-[#131516] border-b border-[#222729] opacity-100">{cliente.telefone || '-'}</td>
+                <td className="w-[10%] h-[97px] px-4 py-2 text-sm text-white bg-[#131516] border-b border-[#222729] opacity-100">{cliente.cpf || '-'}</td>
+                <td className="w-[8%] h-[97px] px-4 py-2 text-sm text-white bg-[#131516] border-b border-[#222729] opacity-100">{cliente.idade ? `${cliente.idade} anos` : '-'}</td>
+                <td className="w-[15%] h-[97px] px-4 py-2 text-sm text-white bg-[#131516] border-b border-[#222729] opacity-100">
                   {cliente.endereco ? (
-                    <span className="block truncate max-w-[200px]" title={cliente.endereco}>
-                      {cliente.endereco.length > 30 ? cliente.endereco.substring(0, 30) + '...' : cliente.endereco}
+                    <span className="block truncate" title={cliente.endereco}>
+                      {cliente.endereco.length > 25 ? cliente.endereco.substring(0, 25) + '...' : cliente.endereco}
                     </span>
                   ) : '-'}
                 </td>
-                <td className="min-w-[180px] h-[97px] px-4 py-2 text-sm text-white bg-[#131516] border-b border-[#222729] opacity-100 whitespace-nowrap">{formatDate(cliente.createdAt)}</td>
-                <td className="min-w-[180px] h-[97px] px-4 py-2 text-sm text-white bg-[#131516] border-b border-[#222729] opacity-100 whitespace-nowrap">{formatDate(cliente.updatedAt)}</td>
-              </tr>
-            ))}
+              <td className="w-[12%] h-[97px] px-4 py-2 text-sm text-white bg-[#131516] border-b border-[#222729] opacity-100 whitespace-nowrap">{formatDate(cliente.createdAt)}</td>
+              <td className="w-[12%] h-[97px] px-4 py-2 text-sm text-white bg-[#131516] border-b border-[#222729] opacity-100 whitespace-nowrap">{formatDate(cliente.updatedAt)}</td>
+              <td className="w-[130px] h-[97px] px-4 py-2 text-sm text-white bg-[#131516] border-b border-[#222729] opacity-100">
+                <AcoesCliente cliente={cliente} consultores={consultores} />
+              </td>
+            </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>

@@ -2,34 +2,38 @@
 
 import { useState } from 'react'
 import Image from 'next/image'
-import { createCliente } from '@/actions/cliente-actions'
+import { createCliente, updateCliente, deleteCliente } from '@/actions/cliente-actions'
 import type { ClienteInput } from '@/lib/validations'
 
 interface ClienteFormModalProps {
   consultores: Array<{ id: string; nome: string }>
   onClose: () => void
   onSuccess: () => void
+  mode?: 'create' | 'edit' | 'delete'
+  cliente?: any
 }
 
-export function ClienteFormModal({ consultores, onClose, onSuccess }: ClienteFormModalProps) {
+export function ClienteFormModal({ consultores, onClose, onSuccess, mode = 'create', cliente }: ClienteFormModalProps) {
   const [abaAtiva, setAbaAtiva] = useState<'basica' | 'clientes'>('basica')
   const [formData, setFormData] = useState({
-    tipo: '',
-    nome: '',
-    telefone: '',
-    email: '',
-    idade: '',
-    cpf: '',
+    tipo: cliente ? 'cliente' : '',
+    nome: cliente?.nome || '',
+    telefone: cliente?.telefone || '',
+    email: cliente?.email || '',
+    idade: cliente?.idade?.toString() || '',
+    cpf: cliente?.cpf || '',
     cep: '',
     estado: '',
-    endereco: '',
+    endereco: cliente?.endereco || '',
     complemento: '',
-    valor: '0',
-    status: 'Ativo',
-    consultorId: consultores[0]?.id || '',
+    valor: cliente?.valor?.toString() || '0',
+    status: cliente?.status || 'Ativo',
+    consultorId: cliente?.consultorId || consultores[0]?.id || '',
   })
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [isSubmitting, setIsSubmitting] = useState(false)
+  
+  const isReadOnly = mode === 'delete'
 
   const handleSubmit = async (e?: React.FormEvent) => {
     if (e) e.preventDefault()
@@ -50,7 +54,9 @@ export function ClienteFormModal({ consultores, onClose, onSuccess }: ClienteFor
         consultorId: formData.consultorId,
       }
 
-      const result = await createCliente(clienteData)
+      const result = mode === 'create' 
+        ? await createCliente(clienteData)
+        : await updateCliente(cliente!.id, clienteData)
 
       if (result.success) {
         onSuccess()
@@ -63,6 +69,21 @@ export function ClienteFormModal({ consultores, onClose, onSuccess }: ClienteFor
     } finally {
       setIsSubmitting(false)
     }
+  }
+
+  const handleDelete = async () => {
+    if (!confirm('Tem certeza que deseja excluir este cliente?')) return
+    
+    setIsSubmitting(true)
+    const result = await deleteCliente(cliente!.id)
+    
+    if (result.success) {
+      onSuccess()
+      onClose()
+    } else {
+      setErrors({ general: result.error || 'Erro ao excluir cliente' })
+    }
+    setIsSubmitting(false)
   }
 
   return (
@@ -79,8 +100,8 @@ export function ClienteFormModal({ consultores, onClose, onSuccess }: ClienteFor
         <div className="flex items-center gap-4">
           <button
             onClick={() => handleSubmit()}
-            disabled={isSubmitting}
-            className="flex items-center justify-center border opacity-100 transition-all duration-300 ease-out hover:opacity-90 px-6"
+            disabled={isSubmitting || mode === 'delete'}
+            className="flex items-center justify-center border opacity-100 transition-all duration-300 ease-out hover:opacity-90 px-6 disabled:opacity-50 disabled:cursor-not-allowed"
             style={{ 
               height: '56px', 
               gap: '16px',
@@ -101,7 +122,7 @@ export function ClienteFormModal({ consultores, onClose, onSuccess }: ClienteFor
                 opacity: 1
               }}
             >
-              {isSubmitting ? 'Salvando...' : 'Criar usuário'}
+              {isSubmitting ? 'Salvando...' : mode === 'create' ? 'Criar usuário' : 'Atualizar dados'}
             </span>
             <Image 
               src="/Add--large.svg" 
@@ -113,10 +134,12 @@ export function ClienteFormModal({ consultores, onClose, onSuccess }: ClienteFor
           
           <button
             type="button"
-            className="px-6 rounded-lg font-medium text-white border border-[#222729] bg-[#1e1e1e] hover:bg-[#2a2a2a] transition-colors"
+            onClick={mode === 'delete' ? handleDelete : undefined}
+            disabled={mode !== 'delete' || isSubmitting}
+            className="px-6 rounded-lg font-medium text-white border border-[#222729] bg-[#1e1e1e] hover:bg-[#2a2a2a] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             style={{ height: '56px' }}
           >
-            Deletar usuário
+            {isSubmitting && mode === 'delete' ? 'Excluindo...' : 'Deletar usuário'}
           </button>
         </div>
       </div>
@@ -124,7 +147,9 @@ export function ClienteFormModal({ consultores, onClose, onSuccess }: ClienteFor
       {/* Conteúdo do Formulário */}
       <div className="flex-1 overflow-y-auto px-8 py-8">
         <div className="bg-[#1e1e1e] rounded-lg p-8">
-          <h1 className="text-3xl font-bold text-white mb-8">Criar usuário</h1>
+          <h1 className="text-3xl font-bold text-white mb-8">
+            {mode === 'create' ? 'Criar usuário' : mode === 'edit' ? 'Editar usuário' : 'Visualizar usuário'}
+          </h1>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Tipo do usuário */}
@@ -134,6 +159,7 @@ export function ClienteFormModal({ consultores, onClose, onSuccess }: ClienteFor
                 value={formData.tipo}
                 onChange={(e) => setFormData({ ...formData, tipo: e.target.value })}
                 className="w-full px-4 py-3 bg-[#2a2a2a] rounded-lg text-white border-none outline-none"
+                disabled={isReadOnly}
               >
                 <option value="">Selecione o tipo do usuário</option>
                 <option value="cliente">Cliente</option>
@@ -152,6 +178,7 @@ export function ClienteFormModal({ consultores, onClose, onSuccess }: ClienteFor
                   placeholder="Digite o nome"
                   className="w-full px-4 py-3 bg-[#2a2a2a] rounded-lg text-white border-none outline-none placeholder:text-gray-500"
                   required
+                  readOnly={isReadOnly}
                 />
               </div>
               <div>
@@ -162,6 +189,7 @@ export function ClienteFormModal({ consultores, onClose, onSuccess }: ClienteFor
                   onChange={(e) => setFormData({ ...formData, telefone: e.target.value })}
                   placeholder="Digite o telefone"
                   className="w-full px-4 py-3 bg-[#2a2a2a] rounded-lg text-white border-none outline-none placeholder:text-gray-500"
+                  readOnly={isReadOnly}
                 />
               </div>
             </div>
@@ -176,6 +204,7 @@ export function ClienteFormModal({ consultores, onClose, onSuccess }: ClienteFor
                 placeholder="Digite o email"
                 className="w-full px-4 py-3 bg-[#2a2a2a] rounded-lg text-white border-none outline-none placeholder:text-gray-500"
                 required
+                readOnly={isReadOnly}
               />
             </div>
 
@@ -220,6 +249,7 @@ export function ClienteFormModal({ consultores, onClose, onSuccess }: ClienteFor
                       onChange={(e) => setFormData({ ...formData, idade: e.target.value })}
                       placeholder="28 anos"
                       className="w-full px-4 py-3 bg-[#2a2a2a] rounded-lg text-white border-none outline-none placeholder:text-gray-500"
+                      readOnly={isReadOnly}
                     />
                   </div>
                   <div>
@@ -230,6 +260,7 @@ export function ClienteFormModal({ consultores, onClose, onSuccess }: ClienteFor
                       onChange={(e) => setFormData({ ...formData, cpf: e.target.value })}
                       placeholder="000.000.000-00"
                       className="w-full px-4 py-3 bg-[#2a2a2a] rounded-lg text-white border-none outline-none placeholder:text-gray-500"
+                      readOnly={isReadOnly}
                     />
                   </div>
                 </div>
@@ -244,6 +275,7 @@ export function ClienteFormModal({ consultores, onClose, onSuccess }: ClienteFor
                       onChange={(e) => setFormData({ ...formData, cep: e.target.value })}
                       placeholder="Insira o CEP"
                       className="w-full px-4 py-3 bg-[#2a2a2a] rounded-lg text-white border-none outline-none placeholder:text-gray-500"
+                      readOnly={isReadOnly}
                     />
                   </div>
                   <div>
@@ -252,6 +284,7 @@ export function ClienteFormModal({ consultores, onClose, onSuccess }: ClienteFor
                       value={formData.estado}
                       onChange={(e) => setFormData({ ...formData, estado: e.target.value })}
                       className="w-full px-4 py-3 bg-[#2a2a2a] rounded-lg text-white border-none outline-none"
+                      disabled={isReadOnly}
                     >
                       <option value="">Selecione o estado</option>
                       <option value="SP">São Paulo</option>
@@ -273,6 +306,7 @@ export function ClienteFormModal({ consultores, onClose, onSuccess }: ClienteFor
                     onChange={(e) => setFormData({ ...formData, endereco: e.target.value })}
                     placeholder="Digite o endereço"
                     className="w-full px-4 py-3 bg-[#2a2a2a] rounded-lg text-white border-none outline-none placeholder:text-gray-500"
+                    readOnly={isReadOnly}
                   />
                 </div>
 
@@ -285,6 +319,7 @@ export function ClienteFormModal({ consultores, onClose, onSuccess }: ClienteFor
                     onChange={(e) => setFormData({ ...formData, complemento: e.target.value })}
                     placeholder="Digite o complemento"
                     className="w-full px-4 py-3 bg-[#2a2a2a] rounded-lg text-white border-none outline-none placeholder:text-gray-500"
+                    readOnly={isReadOnly}
                   />
                 </div>
               </div>
@@ -300,6 +335,7 @@ export function ClienteFormModal({ consultores, onClose, onSuccess }: ClienteFor
                     onChange={(e) => setFormData({ ...formData, consultorId: e.target.value })}
                     className="w-full px-4 py-3 bg-[#2a2a2a] rounded-lg text-white border-none outline-none"
                     required
+                    disabled={isReadOnly}
                   >
                     <option value="">Selecione um consultor</option>
                     {consultores.map((c) => (
@@ -318,6 +354,7 @@ export function ClienteFormModal({ consultores, onClose, onSuccess }: ClienteFor
                     value={formData.valor}
                     onChange={(e) => setFormData({ ...formData, valor: e.target.value })}
                     className="w-full px-4 py-3 bg-[#2a2a2a] rounded-lg text-white border-none outline-none"
+                    readOnly={isReadOnly}
                   />
                 </div>
 
@@ -327,6 +364,7 @@ export function ClienteFormModal({ consultores, onClose, onSuccess }: ClienteFor
                     value={formData.status}
                     onChange={(e) => setFormData({ ...formData, status: e.target.value })}
                     className="w-full px-4 py-3 bg-[#2a2a2a] rounded-lg text-white border-none outline-none"
+                    disabled={isReadOnly}
                   >
                     <option value="Ativo">Ativo</option>
                     <option value="Inativo">Inativo</option>

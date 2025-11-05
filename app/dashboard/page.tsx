@@ -112,7 +112,7 @@ async function DashboardContent({ searchParams }: PageProps) {
 
         {/* Tabela de Clientes */}
         <div className="w-full border border-[#222729] opacity-100 overflow-hidden rounded-lg">
-          <TabelaClientes clientes={clientesFiltrados} />
+          <TabelaClientes clientes={clientesFiltrados} consultores={consultores} />
         </div>
       </div>
     </div>
