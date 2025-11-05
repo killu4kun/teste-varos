@@ -2,6 +2,7 @@ import { Suspense } from 'react'
 import Image from 'next/image'
 import { getClientes, getMetricas } from '@/actions/cliente-actions'
 import { getConsultores } from '@/actions/consultor-actions'
+import { TabelaClientes } from '@/components/dashboard/tabela-clientes'
 
 interface PageProps {
   searchParams: Promise<{ consultor?: string; email?: string; dataInicio?: string; dataFim?: string }>
@@ -23,16 +24,6 @@ async function DashboardContent({ searchParams }: PageProps) {
   const clientesFiltrados = params.email
     ? clientes.filter(c => c.consultor.email.includes(params.email!))
     : clientes
-
-  const formatDate = (date: Date) => {
-    return new Intl.DateTimeFormat('pt-BR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    }).format(new Date(date)).replace(',', ' às') + 'h'
-  }
 
   return (
     <div className="min-h-screen bg-[var(--background)]">
@@ -78,7 +69,7 @@ async function DashboardContent({ searchParams }: PageProps) {
           </div>
 
           {/* Área de Filtros e Botão */}
-          <div className="flex-1 flex flex-col gap-4 w-full">
+          <div className="flex flex-col gap-4 w-full lg:w-auto lg:ml-auto">
             {/* Botão Criar usuário */}
             <div className="flex justify-end">
               <button 
@@ -119,7 +110,7 @@ async function DashboardContent({ searchParams }: PageProps) {
             </div>
 
             {/* Filtros */}
-            <div className="w-full px-4 md:px-6 py-4 flex flex-col md:flex-row items-stretch md:items-center gap-4 md:gap-6 border border-[#222729] rounded-lg bg-[var(--background)] shadow-[0px_1px_4px_0px_#00000029]">
+            <div className="w-full lg:w-auto px-4 md:px-6 py-4 flex flex-col md:flex-row items-stretch md:items-center gap-4 md:gap-6 border border-[#222729] rounded-lg bg-[var(--background)] shadow-[0px_1px_4px_0px_#00000029]">
               <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 min-w-0">
                 <label className="text-[var(--text-secondary)] text-sm whitespace-nowrap">Nome do consultor</label>
                 <select className="w-full sm:min-w-[120px] px-4 py-2.5 bg-[var(--input-bg)] rounded-lg text-white border-none outline-none">
@@ -154,50 +145,7 @@ async function DashboardContent({ searchParams }: PageProps) {
 
         {/* Tabela de Clientes */}
         <div className="w-full border border-[#222729] opacity-100 overflow-hidden rounded-lg">
-          <div className="overflow-x-auto max-h-[388px] overflow-y-auto">
-            <table className="w-full min-w-[1200px]">
-              <thead className="sticky top-0">
-                <tr className="bg-[var(--background)]">
-                  <th className="min-w-[189px] h-[97px] px-4 py-2 text-left text-sm font-semibold text-white border-b border-[#222729] opacity-100">Nome</th>
-                  <th className="min-w-[189px] h-[97px] px-4 py-2 text-left text-sm font-semibold text-white border-b border-[#222729] opacity-100">Email</th>
-                  <th className="min-w-[150px] h-[97px] px-4 py-2 text-left text-sm font-semibold text-white border-b border-[#222729] opacity-100">Telefone</th>
-                  <th className="min-w-[150px] h-[97px] px-4 py-2 text-left text-sm font-semibold text-white border-b border-[#222729] opacity-100">CPF</th>
-                  <th className="min-w-[100px] h-[97px] px-4 py-2 text-left text-sm font-semibold text-white border-b border-[#222729] opacity-100">Idade</th>
-                  <th className="min-w-[200px] h-[97px] px-4 py-2 text-left text-sm font-semibold text-white border-b border-[#222729] opacity-100">Endereço</th>
-                  <th className="min-w-[180px] h-[97px] px-4 py-2 text-left text-sm font-semibold text-white border-b border-[#222729] opacity-100">Criado em</th>
-                  <th className="min-w-[180px] h-[97px] px-4 py-2 text-left text-sm font-semibold text-white border-b border-[#222729] opacity-100">Atualizado em</th>
-                </tr>
-              </thead>
-              <tbody>
-                {clientesFiltrados.length === 0 ? (
-                  <tr>
-                    <td colSpan={8} className="px-6 py-8 text-center text-gray-400">
-                      Nenhum cliente encontrado
-                    </td>
-                  </tr>
-                ) : (
-                  clientesFiltrados.map((cliente) => (
-                    <tr key={cliente.id}>
-                      <td className="min-w-[189px] h-[97px] px-4 py-2 text-sm text-white bg-[#131516] border-b border-[#222729] opacity-100">{cliente.nome}</td>
-                      <td className="min-w-[189px] h-[97px] px-4 py-2 text-sm text-white bg-[#131516] border-b border-[#222729] opacity-100">{cliente.email}</td>
-                      <td className="min-w-[150px] h-[97px] px-4 py-2 text-sm text-white bg-[#131516] border-b border-[#222729] opacity-100">{cliente.telefone || '-'}</td>
-                      <td className="min-w-[150px] h-[97px] px-4 py-2 text-sm text-white bg-[#131516] border-b border-[#222729] opacity-100">{cliente.cpf || '-'}</td>
-                      <td className="min-w-[100px] h-[97px] px-4 py-2 text-sm text-white bg-[#131516] border-b border-[#222729] opacity-100">{cliente.idade ? `${cliente.idade} anos` : '-'}</td>
-                      <td className="min-w-[200px] h-[97px] px-4 py-2 text-sm text-white bg-[#131516] border-b border-[#222729] opacity-100">
-                        {cliente.endereco ? (
-                          <span className="block truncate max-w-[200px]" title={cliente.endereco}>
-                            {cliente.endereco.length > 30 ? cliente.endereco.substring(0, 30) + '...' : cliente.endereco}
-                          </span>
-                        ) : '-'}
-                      </td>
-                      <td className="min-w-[180px] h-[97px] px-4 py-2 text-sm text-white bg-[#131516] border-b border-[#222729] opacity-100 whitespace-nowrap">{formatDate(cliente.createdAt)}</td>
-                      <td className="min-w-[180px] h-[97px] px-4 py-2 text-sm text-white bg-[#131516] border-b border-[#222729] opacity-100 whitespace-nowrap">{formatDate(cliente.updatedAt)}</td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
+          <TabelaClientes clientes={clientesFiltrados} />
         </div>
       </div>
     </div>
