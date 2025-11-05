@@ -1,0 +1,45 @@
+// Schema para Produção (PostgreSQL/Supabase)
+// Este arquivo não é usado diretamente, apenas para referência
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Consultor {
+  id        String   @id @default(cuid())
+  nome      String
+  email     String   @unique
+  telefone  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  clientes  Cliente[]
+}
+
+model Cliente {
+  id           String   @id @default(cuid())
+  nome         String
+  email        String   @unique
+  telefone     String?
+  cpf          String?
+  idade        Int?
+  endereco     String?
+  empresa      String?
+  valor        Float    @default(0)
+  status       String   @default("Ativo")
+  consultorId  String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  
+  consultor    Consultor @relation(fields: [consultorId], references: [id], onDelete: Cascade)
+  
+  @@index([consultorId])
+  @@index([status])
+}
+
