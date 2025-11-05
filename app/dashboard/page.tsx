@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Suspense } from 'react'
 import Image from 'next/image'
 import { getClientes, getMetricas } from '@/actions/cliente-actions'
@@ -31,9 +32,9 @@ async function DashboardContent({ searchParams }: PageProps) {
   }
 
   return (
-    <div className="min-h-screen bg-[var(--background)]">
+    <div className="min-h-screen bg-background">
       {/* Header com Logo */}
-      <header className="w-full h-[66px] border-b border-[var(--border-header)] px-4 md:px-8 py-6 flex items-center gap-2.5">
+      <header className="w-full h-[66px] border-b border-border-header px-4 md:px-8 py-6 flex items-center gap-2.5">
         <Image 
           src="/varos-logo.svg" 
           alt="Varos" 
@@ -53,8 +54,8 @@ async function DashboardContent({ searchParams }: PageProps) {
 
         <div className="w-full flex flex-col lg:flex-row justify-between gap-6 mb-8 opacity-100">
           {/* Card de Métricas - Total de clientes */}
-          <div className="flex-shrink-0 flex flex-col rounded-lg border opacity-100 w-full lg:w-[212px] h-[137px]" style={{ gap: '8px', padding: '16px', borderColor: '#222729' }}>
-            <p className="text-[var(--text-secondary)]" style={{ fontFamily: 'var(--font-red-hat-display)', fontWeight: 400, fontSize: '14px', lineHeight: '135%', letterSpacing: '2%' }}>
+          <div className="shrink-0 flex flex-col rounded-lg border opacity-100 w-full lg:w-[212px] h-[137px]" style={{ gap: '8px', padding: '16px', borderColor: '#222729' }}>
+            <p className="text-text-secondary" style={{ fontFamily: 'var(--font-red-hat-display)', fontWeight: 400, fontSize: '14px', lineHeight: '135%', letterSpacing: '2%' }}>
               Total de clientes
             </p>
             <div className="flex items-center gap-2">
@@ -87,7 +88,10 @@ async function DashboardContent({ searchParams }: PageProps) {
 
         {/* Tabela de Clientes */}
         <div className="w-full border border-[#222729] opacity-100 overflow-hidden rounded-lg">
-          <TabelaClientes clientes={clientesFiltrados} consultores={consultores} />
+          <TabelaClientes
+            clientes={clientesFiltrados as any}
+            consultores={consultores}
+          />
         </div>
       </div>
     </div>
@@ -98,9 +102,9 @@ export default async function DashboardPage(props: PageProps) {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen flex items-center justify-center bg-[var(--background)]">
+        <div className="min-h-screen flex items-center justify-center bg-background">
           <div className="flex flex-col items-center gap-4">
-            <div className="w-12 h-12 border-4 border-[var(--button-primary)] border-t-transparent rounded-full animate-spin"></div>
+            <div className="w-12 h-12 border-4 border-button-primary border-t-transparent rounded-full animate-spin"></div>
             <p className="text-gray-400">Carregando...</p>
           </div>
         </div>

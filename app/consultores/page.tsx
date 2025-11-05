@@ -8,7 +8,7 @@ import { getConsultores } from '@/actions/consultor-actions'
 
 async function ConsultoresContent() {
   const result = await getConsultores()
-  const consultores = result.success ? result.data : []
+  const consultores = result.success && result.data ? result.data : []
 
   return (
     <Card>
