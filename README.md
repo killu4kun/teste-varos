@@ -11,28 +11,43 @@ Sistema full-stack de gestão de consultores e clientes desenvolvido com Next.js
 - **SQLite** - Banco de dados leve para desenvolvimento
 - **Tailwind CSS 4** - Framework CSS utility-first
 - **Zod** - Validação de schemas TypeScript-first
+- **Jest** - Framework de testes JavaScript
+- **React Testing Library** - Testes de componentes React
+- **Red Hat Display** - Fonte Google para tipografia
 
 ## ✨ Features Implementadas
 
 ### Dashboard
-- 📊 Métricas em cards (Total de Clientes, Clientes Ativos, Valor Total, Total de Consultores)
-- 📋 Tabela de clientes com informações detalhadas
-- 🔍 Filtros por consultor e status
-- 🎨 Interface moderna e responsiva
+- 📊 Métricas em cards (Total de Clientes com indicador de crescimento)
+- 📋 Tabela de clientes com todas as informações (Nome, Email, Telefone, CPF, Idade, Endereço, Datas)
+- 🔍 Filtros funcionais por consultor (nome e email)
+- 📄 **Paginação** - 5 clientes por página
+- 🎨 Interface moderna, responsiva e tema dark (#131313)
+- ⚡ Botões de ação (Editar/Excluir) em cada linha
 
 ### Gestão de Consultores
-- ➕ Criar novos consultores
+- ➕ Criar novos consultores via modal
 - ✏️ Editar consultores existentes
+- 👥 Adicionar múltiplos clientes a um consultor
 - 📋 Listagem com contador de clientes
 - ✅ Validação de formulários com Zod
 
 ### Gestão de Clientes
-- ➕ Criar novos clientes
-- ✏️ Editar clientes existentes
-- 🗑️ Excluir clientes
-- 🔗 Relacionamento com consultores
-- 💰 Controle de valores
+- ➕ Criar novos clientes via **modal lateral**
+- ✏️ Editar clientes existentes via modal
+- 🗑️ Excluir clientes (modo visualização read-only)
+- 🔗 Relacionamento obrigatório com consultores
+- 💰 Controle de valores monetários
 - 📊 Status (Ativo, Inativo, Em Negociação)
+- 📍 Informações completas (CPF, Idade, CEP, Estado, Endereço, Complemento)
+
+### Modal de Criação/Edição
+- 🎭 Animação suave (slide da direita, 300ms ease-out)
+- 📑 Sistema de abas (Informações básica / Adicionar clientes)
+- 🔀 Tipo de usuário: Cliente ou Consultor
+- 🔒 Modo de visualização read-only para exclusão
+- ✅ Validação em tempo real
+- 🎯 Botões contextuais (Criar/Atualizar/Deletar)
 
 ### Features Técnicas do Next.js 16
 - ⚡ **Server Components** - Componentes renderizados no servidor
@@ -171,6 +186,11 @@ yarn db:seed
 
 # Prisma Studio (visualizar banco)
 yarn prisma studio
+
+# Testes
+yarn test              # Executar todos os testes
+yarn test:watch        # Executar testes em modo watch
+yarn test:coverage     # Gerar relatório de cobertura
 ```
 
 ## 🧪 Dados de Exemplo
@@ -182,13 +202,18 @@ O seed cria automaticamente:
 
 ## 🎨 Features de UX/UI
 
-- Design moderno e limpo com Tailwind CSS
-- Componentes reutilizáveis e consistentes
-- Loading states com skeletons animados
-- Feedback visual para ações (badges de status)
-- Navegação intuitiva
-- Layout responsivo (mobile-friendly)
-- Validação de formulários com mensagens de erro
+- **Design moderno** seguindo especificações exatas do Figma
+- **Tema dark** com paleta de cores personalizada (#131313, #1e1e1e, #2a2a2a)
+- **Tipografia** com Red Hat Display para títulos e textos
+- **Componentes reutilizáveis** e consistentes
+- **Loading states** com skeletons animados
+- **Feedback visual** para ações (badges de status coloridos)
+- **Modal lateral** com animação slide-in (300ms ease-out)
+- **Layout responsivo** - Otimizado para 1920px e mobile
+- **Validação de formulários** com mensagens de erro em tempo real
+- **Paginação** elegante com controles anterior/próxima
+- **Botões de ação** inline na tabela
+- **Filtros dinâmicos** com atualização de URL
 
 ## 🔒 Validações
 
@@ -197,16 +222,83 @@ O seed cria automaticamente:
 - Validação de tipos (número para valor, email válido)
 - Confirmação antes de excluir dados
 
+## 🧪 Testes Unitários
+
+O projeto inclui uma suíte completa de testes unitários usando **Jest** e **React Testing Library**.
+
+### Cobertura de Testes
+
+- ✅ **50 testes** passando
+- ✅ **9 suítes de teste**
+- ✅ Componentes UI (Button, Input, Badge, Card, Modal)
+- ✅ Validações de formulários (Zod schemas)
+- ✅ Componentes do Dashboard (MetricasCards)
+- ✅ Utilitários (formatação de moeda e data)
+
+### Executar Testes
+
+```bash
+# Rodar todos os testes
+yarn test
+
+# Modo watch (re-executa ao salvar arquivos)
+yarn test:watch
+
+# Gerar relatório de cobertura
+yarn test:coverage
+```
+
+### Estrutura de Testes
+
+```
+__tests__/
+├── integration/          # Testes de integração
+│   └── cliente-crud.test.ts
+└── utils/                # Testes de utilitários
+    └── formatters.test.ts
+
+components/
+├── dashboard/__tests__/
+│   └── metricas-cards.test.tsx
+└── ui/__tests__/
+    ├── badge.test.tsx
+    ├── button.test.tsx
+    ├── card.test.tsx
+    ├── input.test.tsx
+    └── modal.test.tsx
+
+lib/__tests__/
+└── validations.test.ts
+```
+
+## ✅ Funcionalidades Implementadas
+
+- [x] Dashboard com métricas e tabelas
+- [x] Paginação nas tabelas (5 itens por página)
+- [x] Filtros funcionais por consultor
+- [x] CRUD completo de clientes e consultores
+- [x] Modal lateral com animação
+- [x] Validação de formulários com Zod
+- [x] Testes unitários (50 testes passando)
+- [x] Layout responsivo (1920px e mobile)
+- [x] Server Components e Server Actions
+- [x] Loading states e Suspense
+- [x] Tema dark com design system
+
 ## 🚀 Próximos Passos (Melhorias Futuras)
 
 - [ ] Autenticação e autorização de usuários
-- [ ] Paginação nas tabelas
-- [ ] Busca por texto
+- [ ] Busca por texto global
 - [ ] Exportação de relatórios (PDF/Excel)
-- [ ] Gráficos e visualizações avançadas
-- [ ] Histórico de alterações
-- [ ] Notificações em tempo real
-- [ ] Testes unitários e E2E
+- [ ] Gráficos e visualizações avançadas (Charts.js)
+- [ ] Histórico de alterações (audit log)
+- [ ] Notificações em tempo real (WebSockets)
+- [ ] Testes E2E com Playwright
+- [ ] Aumentar cobertura de testes para 100%
+- [ ] Upload de avatar para usuários
+- [ ] Filtro por período (data range picker)
+- [ ] Modo de visualização em cards
+- [ ] Importação em massa via CSV/Excel
 
 ## 📝 Notas de Desenvolvimento
 
