@@ -19,7 +19,7 @@ async function ConsultoresContent() {
         </Link>
       </CardHeader>
       <CardContent>
-        {consultores.length === 0 ? (
+        {(consultores ?? []).length === 0 ? (
           <div className="text-center py-12 text-gray-500">
             <p className="text-lg">Nenhum consultor encontrado</p>
           </div>
@@ -35,7 +35,7 @@ async function ConsultoresContent() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {consultores.map((consultor) => (
+              {(consultores ?? []).map((consultor) => (
                 <TableRow key={consultor.id}>
                   <TableCell className="font-medium">{consultor.nome}</TableCell>
                   <TableCell>{consultor.email}</TableCell>
