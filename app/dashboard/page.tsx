@@ -1,9 +1,9 @@
 import { Suspense } from 'react'
 import Image from 'next/image'
-import Link from 'next/link'
 import { getClientes, getMetricas } from '@/actions/cliente-actions'
 import { getConsultores } from '@/actions/consultor-actions'
 import { TabelaClientes } from '@/components/dashboard/tabela-clientes'
+import { CriarUsuarioButton } from '@/components/dashboard/criar-usuario-button'
 
 interface PageProps {
   searchParams: Promise<{ consultor?: string; email?: string; dataInicio?: string; dataFim?: string }>
@@ -73,43 +73,7 @@ async function DashboardContent({ searchParams }: PageProps) {
           <div className="flex flex-col gap-4 w-full lg:w-auto lg:ml-auto">
             {/* Botão Criar usuário */}
             <div className="flex justify-end">
-              <Link href="/clientes/novo">
-                <button 
-                  className="flex items-center justify-center border opacity-100 transition-all duration-300 ease-out hover:opacity-90 w-full sm:w-[171px]"
-                  style={{ 
-                    height: '56px', 
-                    gap: '16px',
-                    borderRadius: '8px',
-                    borderWidth: '1px',
-                    borderColor: '#222729',
-                    background: '#1B3F1B',
-                    paddingLeft: '16px',
-                    paddingRight: '16px'
-                  }}
-                >
-                  <span 
-                    style={{ 
-                      width: '99px',
-                      height: '22px',
-                      fontFamily: 'var(--font-red-hat-display)',
-                      fontWeight: 400,
-                      fontSize: '16px',
-                      lineHeight: '135%',
-                      letterSpacing: '2%',
-                      color: '#00F700',
-                      opacity: 1
-                    }}
-                  >
-                    Criar usuário
-                  </span>
-                  <Image 
-                    src="/Add--large.svg" 
-                    alt="Add icon" 
-                    width={16} 
-                    height={16}
-                  />
-                </button>
-              </Link>
+              <CriarUsuarioButton consultores={consultores} />
             </div>
 
             {/* Filtros */}
