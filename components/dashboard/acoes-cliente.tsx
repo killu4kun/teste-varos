@@ -6,7 +6,19 @@ import { Modal } from '@/components/ui/modal'
 import { ClienteFormModal } from '@/components/forms/cliente-form-modal'
 
 interface AcoesClienteProps {
-  cliente: any
+  cliente: {
+    id: string
+    nome: string
+    email: string
+    telefone: string | null
+    cpf: string | null
+    idade: number | null
+    endereco: string | null
+    empresa: string | null
+    valor: number
+    status: string
+    consultorId: string
+  }
   consultores: Array<{ id: string; nome: string }>
 }
 

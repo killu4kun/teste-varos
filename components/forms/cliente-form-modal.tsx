@@ -5,17 +5,33 @@ import Image from 'next/image'
 import { createCliente, updateCliente, deleteCliente, getClientesSemConsultor, adicionarClientesAoConsultor } from '@/actions/cliente-actions'
 import type { ClienteInput } from '@/lib/validations'
 
+interface Cliente {
+  id: string
+  nome: string
+  email: string
+  telefone: string | null
+  cpf: string | null
+  idade: number | null
+  endereco: string | null
+  empresa: string | null
+  valor: number
+  status: string
+  consultorId: string
+  createdAt?: Date
+  updatedAt?: Date
+}
+
 interface ClienteFormModalProps {
   consultores: Array<{ id: string; nome: string }>
   onClose: () => void
   onSuccess: () => void
   mode?: 'create' | 'edit' | 'delete'
-  cliente?: any
+  cliente?: Cliente
 }
 
 export function ClienteFormModal({ consultores, onClose, onSuccess, mode = 'create', cliente }: ClienteFormModalProps) {
   const [abaAtiva, setAbaAtiva] = useState<'basica' | 'clientes'>('basica')
-  const [clientesDisponiveis, setClientesDisponiveis] = useState<any[]>([])
+  const [clientesDisponiveis, setClientesDisponiveis] = useState<Cliente[]>([])
   const [clientesSelecionados, setClientesSelecionados] = useState<string[]>([])
   const [formData, setFormData] = useState({
     tipo: cliente ? 'cliente' : '',
@@ -42,7 +58,7 @@ export function ClienteFormModal({ consultores, onClose, onSuccess, mode = 'crea
       // Carregar clientes disponíveis
       getClientesSemConsultor().then(result => {
         if (result.success && result.data) {
-          setClientesDisponiveis(result.data)
+          setClientesDisponiveis(result.data as Cliente[])
         }
       })
     }

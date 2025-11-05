@@ -4,8 +4,30 @@ import { useState } from 'react'
 import { AcoesCliente } from './acoes-cliente'
 
 interface TabelaClientesProps {
-  clientes: any[]
-  consultores: any[]
+  clientes: Array<{
+    id: string
+    nome: string
+    email: string
+    telefone: string | null
+    cpf: string | null
+    idade: number | null
+    endereco: string | null
+    empresa: string | null
+    valor: number
+    status: string
+    consultorId: string
+    createdAt: Date
+    updatedAt: Date
+    consultor: {
+      id: string
+      nome: string
+      email: string
+    }
+  }>
+  consultores: Array<{
+    id: string
+    nome: string
+  }>
 }
 
 export function TabelaClientes({ clientes, consultores }: TabelaClientesProps) {

@@ -6,20 +6,29 @@ import Image from 'next/image'
 import { createCliente, updateCliente } from '@/actions/cliente-actions'
 import type { ClienteInput } from '@/lib/validations'
 
-interface ClienteFormProps {
-  cliente?: {
+interface Cliente {
+  id: string
+  nome: string
+  email: string
+  telefone: string | null
+  cpf: string | null
+  idade: number | null
+  endereco: string | null
+  empresa: string | null
+  valor: number
+  status: string
+  consultorId: string
+  createdAt?: Date
+  updatedAt?: Date
+  consultor?: {
     id: string
     nome: string
     email: string
-    telefone: string | null
-    cpf: string | null
-    idade: number | null
-    endereco: string | null
-    empresa: string | null
-    valor: number
-    status: string
-    consultorId: string
   }
+}
+
+interface ClienteFormProps {
+  cliente?: Cliente
   consultores: Array<{ id: string; nome: string }>
   mode: 'create' | 'edit'
 }
@@ -77,6 +86,7 @@ export function ClienteForm({ cliente, consultores, mode }: ClienteFormProps) {
         setErrors({ general: result.error || 'Erro ao salvar cliente' })
       }
     } catch (error) {
+      console.log(error)
       setErrors({ general: 'Erro ao salvar cliente' })
     } finally {
       setIsSubmitting(false)
@@ -84,9 +94,9 @@ export function ClienteForm({ cliente, consultores, mode }: ClienteFormProps) {
   }
 
   return (
-    <div className="min-h-screen bg-[var(--background)]">
+    <div className="min-h-screen bg-background">
       {/* Header com Logo e Botões */}
-      <header className="w-full h-[66px] border-b border-[var(--border-header)] px-4 md:px-8 py-6 flex items-center justify-between gap-2.5">
+      <header className="w-full h-[66px] border-b border-border-header px-4 md:px-8 py-6 flex items-center justify-between gap-2.5">
         <Image 
           src="/varos-logo.svg" 
           alt="Varos" 
